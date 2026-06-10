@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>C++ Debugging Master | Green Edition</title>
+
+<style>
+/* استيراد خطوط احترافية */
+@import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;600&family=Rajdhani:wght@600;700&display=swap');
+
+:root {
+  --primary: #00ff41; /* أخضر نيون قوي */
+  --primary-glow: rgba(0, 255, 65, 0.4);
+  --bg: #050805;
+  --card-bg: rgba(10, 20, 10, 0.8);
+}
+
+body {
+  margin: 0;
+  font-family: 'Rajdhani', sans-serif;
+  background-color: var(--bg);
+  background-image: 
+    radial-gradient(circle at center, #0a200a 0%, #050805 100%);
+  color: white;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+/* شاشة البداية */
+#startScreen {
+  position: fixed;
+  inset: 0;
+  background: radial-gradient(circle at center, #0d1a0d, #050805);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  z-index: 100;
+}
+
+.logo {
+  width: 160px;
+  height: 160px;
+  border-radius: 25px;
+  overflow: hidden;
+  border: 3px solid var(--primary);
+  box-shadow: 0 0 30px var(--primary-glow);
+  margin-bottom: 25px;
+  transition: 0.5s ease;
+  animation: logoFloat 3s ease-in-out infinite;
+}
+
+@keyframes logoFloat {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-15px) rotate(5deg); }
+}
+
+.logo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+h1 {
+  font-size: 3rem;
+  margin-bottom: 30px;
+  letter-spacing: 4px;
+  text-align: center;
+  color: var(--primary);
+  text-shadow: 0 0 15px var(--primary-glow);
+  text-transform: uppercase;
+}
+
+.btn-group {
+  display: flex;
+  gap: 15px;
+}
+
+.levelBtn {
+  padding: 15px 30px;
+  border: 2px solid var(--primary);
+  background: transparent;
+  color: var(--primary);
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 1.1rem;
+  text-transform: uppercase;
+  transition: 0.3s;
+  font-family: 'Rajdhani', sans-serif;
+}
+
+.levelBtn:hover {
+  background: var(--primary);
+  color: #000;
+  box-shadow: 0 0 25px var(--primary);
+  transform: scale(1.05);
+}
+
+/* حاوية اللعبة الرئيسية */
+.container {
+  display: none;
+  width: 90%;
+  max-width: 750px;
+  background: var(--card-bg);
+  padding: 40px;
+  border-radius: 20px;
+  border: 1px solid rgba(0, 255, 65, 0.2);
+  backdrop-filter: blur(15px);
+  box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+  margin: 20px 0;
+}
+
+#lvTitle {
+  text-align: center;
+  color: var(--primary);
+  font-size: 2rem;
+  margin-bottom: 30px;
+  text-transform: uppercase;
+  border-bottom: 2px solid var(--primary);
+  padding-bottom: 10px;
+}
+
+p {
+  color: var(--primary);
+  font-weight: bold;
+  margin-top: 20px;
+  font-size: 1.1rem;
+}
+
+.code-box {
+  background: #000;
+  padding: 20px;
+  border-radius: 12px;
+  font-family: 'Fira Code', monospace;
+  white-space: pre;
+  border-left: 5px solid var(--primary);
+  margin: 10px 0 20px 0;
+  color: #ccc;
+  overflow-x: auto;
+  font-size: 0.9rem;
+}
+
+textarea {
+  width: 100%;
+  height: 80px;
+  background: rgba(0, 30, 0, 0.4);
+  border: 1px solid #4d9e4d;
+  color: var(--primary);
+  border-radius: 10px;
+  padding: 15px;
+  box-sizing: border-box;
+  margin-bottom: 10px;
+  font-family: 'Fira Code', monospace;
+  outline: none;
+  transition: 0.3s;
+}
+
+textarea:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 10px var(--primary-glow);
+}
+
+.submitBtn {
+  margin-top: 20px;
+  width: 100%;
+  background: linear-gradient(90deg, #008f67, var(--primary));
+  border: none;
+  padding: 18px;
+  border-radius: 12px;
+  cursor: pointer;
+  font-weight: 800;
+  color: #000;
+  font-size: 1.2rem;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  transition: 0.3s;
+}
+
+.submitBtn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 20px var(--primary-glow);
+  filter: brightness(1.2);
+}
+
+/* شاشة النتيجة */
+#overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.95);
+  display: none;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  z-index: 200;
+}
+
+#finalText {
+  font-size: 4rem;
+  text-align: center;
+  margin-bottom: 30px;
+  font-weight: 800;
+}
+
+/* تخصيص السكرول بار */
+::-webkit-scrollbar { width: 8px; }
+::-webkit-scrollbar-thumb { background: var(--primary); border-radius: 10px; }
+</style>
+</head>
+
+<body>
+
+<!-- شاشة البداية -->
+<div id="startScreen">
+  <div class="logo">
+    <img src="IMG_5131.JPG" alt="Logo">
+  </div>
+  <h1>C++ Debug Master</h1>
+  <div class="btn-group">
+    <button class="levelBtn" onclick="startGame('easy')">Easy</button>
+    <button class="levelBtn" onclick="startGame('medium')">Medium</button>
+    <button class="levelBtn" onclick="startGame('hard')">Hard</button>
+  </div>
+</div>
+
+<!-- واجهة اللعب -->
+<div class="container" id="game">
+  <h2 id="lvTitle">Level</h2>
+  
+  <p>// Syntax Error (Missing Semicolon):</p>
+  <div class="code-box" id="code1"></div>
+  <textarea id="ans1" placeholder="Fix syntax..."></textarea>
+  
+  <p>// Logic Error (Wrong Condition):</p>
+  <div class="code-box" id="code2"></div>
+  <textarea id="ans2" placeholder="Fix logic..."></textarea>
+  
+  <button class="submitBtn" onclick="check()">COMPILE & EXECUTE</button>
+</div>
+
+<!-- شاشة النهاية -->
+<div id="overlay">
+  <h1 id="finalText"></h1>
+  <button class="levelBtn" onclick="location.reload()">Reboot System</button>
+</div>
+
+<script>
+let level="easy";
+
+// العودة للوظائف الأصلية تماماً كما طلبت
+function startGame(lv){
+  level=lv;
+  document.getElementById("startScreen").style.display="none";
+  document.getElementById("game").style.display="block";
+  document.getElementById("lvTitle").innerText = "SYSTEM.LVL: " + lv.toUpperCase();
+  loadLevel();
+}
+
+function loadLevel(){
+  if(level==="easy"){
+    document.getElementById("code1").innerText = `#include <iostream>\nusing namespace std;\nint main() {\n    int x = 10\n    cout << x;\n    return 0;\n}`;
+    document.getElementById("code2").innerText = `#include <iostream>\nusing namespace std;\nint main() {\n    int age = 20;\n    if(age > 20) cout << "Adult";\n    else cout << "Child";\n    return 0;\n}`;
+  }
+  else if(level==="medium"){
+    document.getElementById("code1").innerText = `#include <iostream>\nusing namespace std;\nint main() {\n    int x = 5\n    cout << x;\n    return 0;\n}`;
+    document.getElementById("code2").innerText = `#include <iostream>\nusing namespace std;\nint main() {\n    int sum = 0;\n    for(int i = 1; i <= 5; i++){\n        sum = i;\n    }\n    cout << sum;\n    return 0;\n}`;
+  }
+  else{
+    document.getElementById("code1").innerText = `#include <iostream>\nusing namespace std;\nint main() {\n    for(int i = 0 i < 5; i++){\n        cout << i << endl;\n    }\n    return 0;\n}`;
+    document.getElementById("code2").innerText = `#include <iostream>\nusing namespace std;\nint main() {\n    int arr[3] = {1,2,3};\n    cout << arr[3];\n    return 0;\n}`;
+  }
+}
+
+function normalize(t){ return t.replace(/\s/g,'').toLowerCase(); }
+
+function check(){
+  let a1 = normalize(document.getElementById("ans1").value);
+  let a2 = normalize(document.getElementById("ans2").value);
+  let ok=false;
+
+  if(level==="easy"){ 
+    ok = a1.includes("intx=10;") && (a2.includes("age>=20") || a2.includes("age>19")); 
+  }
+  else if(level==="medium"){ 
+    ok = a1.includes("intx=5;") && a2.includes("sum+=i"); 
+  }
+  else{ 
+    ok = a1.includes("i=0;i<5") && a2.includes("arr[2]"); 
+  }
+
+  document.getElementById("overlay").style.display="flex";
+  const finalText = document.getElementById("finalText");
+  
+  if(ok) {
+    finalText.innerText = "🎉 ACCESS GRANTED";
+    finalText.style.color = "#00ff41";
+    finalText.style.textShadow = "0 0 20px #00ff41";
+  } else {
+    finalText.innerText = "❌ ACCESS DENIED";
+    finalText.style.color = "#ff4444";
+    finalText.style.textShadow = "0 0 20px #ff4444";
+  }
+}
+</script>
+
+</body>
+</html>
